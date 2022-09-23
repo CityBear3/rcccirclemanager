@@ -37,9 +37,9 @@ jobs:
       postgres:
         image: postgres
         env:
-          POSTGRES_USER: test
-          POSTGRES_PASSWORD: test
-          POSTGRES_DB: test
+          POSTGRES_USER: circle-manager
+          POSTGRES_PASSWORD: circle-manager
+          POSTGRES_DB: circle-manager
         options: >-
           --health-cmd pg_isready
           --health-interval 10s

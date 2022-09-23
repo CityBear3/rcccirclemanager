@@ -1,0 +1,20 @@
+datasources:
+  default:
+    driverClassName: org.postgresql.Driver
+    db-type: postgresql
+    dialect: POSTGRES
+    username: "circle-manager"
+    url: "jdbc:postgresql://localhost:55432/circle-manager"
+    password: "circle-manager"
+    auto-commit: false
+flyway:
+  datasources:
+    default:
+      enabled: true
+micronaut:
+  server:
+    cors:
+      enabled: true
+      single-header: true
+redis:
+  uri: "redis://localhost:6379"

@@ -203,7 +203,7 @@ class AdminUserRestControllerTest : BaseRestControllerTest() {
     }
 
     @Test
-    @DisplayName("ユーザー作成API メールアドレスが既に使用されている場合は408エラー")
+    @DisplayName("ユーザー作成API メールアドレスが既に使用されている場合は409エラー")
     fun testUserCreateAPI_FailedByDuplicatedEmail() {
         val cookie = loginAdmin()
         val userUpsertRequest = UserUpsertRequest(user.email, "test", "test", "Test-1234", false)

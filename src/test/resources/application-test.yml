@@ -16,5 +16,9 @@ micronaut:
     cors:
       enabled: true
       single-header: true
+      configurations:
+        web:
+          allowedOrigins:
+            - "http://localhost:3000"
 redis:
   uri: "redis://localhost:6379"

@@ -33,8 +33,6 @@ jobs:
           ./gradlew dockerBuild
   test:
     runs-on: ubuntu-latest
-    env:
-      ALLOWED_ORIGIN: http://localhost:3000
     services:
       postgres:
         image: postgres

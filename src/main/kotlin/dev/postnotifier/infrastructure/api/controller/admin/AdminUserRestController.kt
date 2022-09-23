@@ -1,5 +1,6 @@
 package dev.postnotifier.infrastructure.api.controller.admin
 
+import dev.postnotifier.annotation.RequestValidation
 import dev.postnotifier.infrastructure.api.request.UserUpsertRequest
 import dev.postnotifier.infrastructure.api.response.UserResponse
 import dev.postnotifier.infrastructure.api.response.UsersResponse
@@ -21,7 +22,7 @@ import java.util.*
 @Tag(name = "User", description = "ユーザー")
 @Controller("/api/admin/users", produces = [MediaType.APPLICATION_JSON])
 @Secured("ROLE_ADMIN")
-class AdminUserRestController(
+open class AdminUserRestController(
     private val getUserQuery: GetUserQuery,
     private val getUsersQuery: GetUsersQuery,
     private val createUserCommand: CreateUserCommand
@@ -66,8 +67,10 @@ class AdminUserRestController(
      */
     @Post
     @Status(HttpStatus.OK)
-    fun createUser(@Body requestBody: UserUpsertRequest, @Parameter(hidden = true) authentication: Authentication) {
-        requestBody.validate()
+    open fun createUser(
+        @Body @RequestValidation requestBody: UserUpsertRequest,
+        @Parameter(hidden = true) authentication: Authentication
+    ) {
         createUserCommand.execute(requestBody)
     }
 

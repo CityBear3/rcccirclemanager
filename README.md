@@ -1,4 +1,42 @@
-## RCC CIRCLE MANAGER
+[![CI](https://github.com/CityBear3/rcccirclemanager/actions/workflows/github-ci.yml/badge.svg)](https://github.com/CityBear3/rcccirclemanager/actions/workflows/github-ci.yml)
+# RCC CIRCLE MANAGER
+
+---
+
+## 説明
+このアプリケーションは立命館コンピュータクラブ向けのサークル管理サービスのサーバーサイドです。
+
+## 環境構築
+アプリケーションを実行するにはJava17が必要です。
+
+### 実行
+以下の環境変数をenvファイルに記載してください。
+```dotenv
+POSTGRES_DB={YOUR_DB_NAME}
+POSTGRES_USER={YOUR_DB_USER}
+POSTGRES_PASSWORD={YOUR_DB_PASSWORD}
+POSTGRES_URL=jdbc:postgresql://{YOU_DB_HOST}:5432/${POSTGRES_DB}
+REDIS_URL=redis://{YOUR_REDIS_HOST}:6379
+ALLOWED_ORIGIN=http://localhost:3000
+```
+以下のコマンドでサーバーを起動
+```commandline
+./gradlew dockerBuild
+
+docker compose up -d
+```
+
+### テスト
+セッションストレージとテスト用データベースを起動する必要があります。
+```commandline
+./gradlew test
+```
+
+### データベースのマイグレーション
+事前にデータベースを起動する必要があります。
+```commandline
+./gradlew flywayMigrate
+```
 
 [//]: # (## Micronaut 3.6.1 Documentation)
 

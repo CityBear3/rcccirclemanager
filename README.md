@@ -1,4 +1,5 @@
 [![CI](https://github.com/CityBear3/rcccirclemanager/actions/workflows/github-ci.yml/badge.svg)](https://github.com/CityBear3/rcccirclemanager/actions/workflows/github-ci.yml)
+[![CD](https://github.com/CityBear3/rcccirclemanager/actions/workflows/github-cd.yml/badge.svg)](https://github.com/CityBear3/rcccirclemanager/actions/workflows/github-cd.yml)
 # RCC CIRCLE MANAGER
 
 ---
@@ -37,6 +38,10 @@ docker compose up -d
 ```commandline
 ./gradlew flywayMigrate
 ```
+
+### 
+### デプロイ
+デプロイをしたいコミットのtagを作成し、pushするとworkflowが発火します。
 
 [//]: # (## Micronaut 3.6.1 Documentation)
 

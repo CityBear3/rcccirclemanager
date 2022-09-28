@@ -1,5 +1,6 @@
 package dev.postnotifier.infrastructure.api.controller.admin
 
+import dev.postnotifier.domain.model.UserModel
 import dev.postnotifier.exception.ErrorCode
 import dev.postnotifier.infrastructure.api.controller.BaseRestControllerTest
 import dev.postnotifier.infrastructure.api.request.UserUpsertRequest
@@ -222,6 +223,88 @@ class AdminUserRestControllerTest : BaseRestControllerTest() {
     fun testUserCreateAPI_FailedByUserNotLogin() {
         val userUpsertRequest = UserUpsertRequest("test@rits.cc", "test", "test", "Test-1234", false)
         val request = HttpRequest.POST(basePath, userUpsertRequest)
+        try {
+            client.toBlocking().exchange(request, Argument.of(MutableHttpResponse::class.java))
+        } catch (exception: HttpClientResponseException) {
+            Assertions.assertEquals(HttpStatus.UNAUTHORIZED, exception.status)
+        }
+    }
+
+    @Test
+    @DisplayName("ユーザー削除API 管理者がユーザーを削除できる")
+    fun testDeleteUserAPI_Success() {
+        val cookie = loginAdmin()
+        val insertUser = UserModel(
+            UUID.randomUUID(),
+            "test@rits.cc",
+            "test",
+            "test",
+            authUtil.encode(""),
+            false
+        )
+        connection.prepareStatement(
+            """
+            INSERT INTO users(id, email, first_name, last_name, password, is_admin) 
+                VALUES ('${insertUser.id}', '${insertUser.email}', '${insertUser.firstName}', '${insertUser.lastName}', '${insertUser.password}', '${insertUser.isAdmin}')
+        """.trimIndent()
+        ).execute()
+        val url = basePath + "/${insertUser.id}"
+        val request = HttpRequest.DELETE<String>(url).cookie(cookie)
+        client.toBlocking().exchange(request, Argument.of(MutableHttpResponse::class.java))
+        val result = connection.prepareStatement(
+            """
+            SELECT * FROM users WHERE users.id = '${insertUser.id}'
+        """.trimIndent()
+        ).executeQuery()
+        Assertions.assertFalse(result.next())
+    }
+
+    @Test
+    @DisplayName("ユーザー削除API 管理者でない場合は403エラー")
+    fun testDeleteUserAPI_FailedByUserHasNoPermission() {
+        val cookie = login()
+        val url = basePath + "/${UUID.randomUUID()}"
+        val request = HttpRequest.DELETE<String>(url).cookie(cookie)
+        try {
+            client.toBlocking().exchange(request, Argument.of(MutableHttpResponse::class.java))
+        } catch (exception: HttpClientResponseException) {
+            Assertions.assertEquals(HttpStatus.FORBIDDEN, exception.status)
+        }
+    }
+
+    @Test
+    @DisplayName("ユーザー削除API ユーザーが存在しない場合は404エラー")
+    fun testDeleteUserAPI_FailedByNotFoundUser() {
+        val cookie = loginAdmin()
+        val url = basePath + "/${UUID.randomUUID()}"
+        val request = HttpRequest.DELETE<String>(url).cookie(cookie)
+        try {
+            client.toBlocking().exchange(request, Argument.of(MutableHttpResponse::class.java))
+        } catch (exception: HttpClientResponseException) {
+            Assertions.assertEquals(HttpStatus.NOT_FOUND, exception.status)
+            Assertions.assertEquals(ErrorCode.NOT_FOUND_USER.message, exception.message)
+        }
+    }
+
+    @Test
+    @DisplayName("ユーザー削除API 管理者が自分自身を削除しようとした場合は500エラー")
+    fun testDeleteUserAPI_FailedByAdminDeleteOwn() {
+        val cookie = loginAdmin()
+        val url = basePath + "/${admin.id}"
+        val request = HttpRequest.DELETE<String>(url).cookie(cookie)
+        try {
+            client.toBlocking().exchange(request, Argument.of(MutableHttpResponse::class.java))
+        } catch (exception: HttpClientResponseException) {
+            Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, exception.status)
+            Assertions.assertEquals(ErrorCode.UNEXPECTED_ERROR.message, exception.message)
+        }
+    }
+
+    @Test
+    @DisplayName("ユーザー削除API ログインしていない場合は401エラー")
+    fun testDeleteUserAPI_FailedByUserNotLogin() {
+        val url = basePath + "/${UUID.randomUUID()}"
+        val request = HttpRequest.DELETE<String>(url)
         try {
             client.toBlocking().exchange(request, Argument.of(MutableHttpResponse::class.java))
         } catch (exception: HttpClientResponseException) {

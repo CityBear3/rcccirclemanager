@@ -48,4 +48,11 @@ class UserModel(
         return email.matches(regex)
     }
 
+    fun checkIsDeletable(userId: UUID): Boolean {
+        if (id == userId && isAdmin) {
+            return false
+        }
+        return true
+    }
+
 }

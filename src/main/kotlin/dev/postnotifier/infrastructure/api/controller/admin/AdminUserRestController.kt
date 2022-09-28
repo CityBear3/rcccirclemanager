@@ -5,6 +5,7 @@ import dev.postnotifier.infrastructure.api.request.UserUpsertRequest
 import dev.postnotifier.infrastructure.api.response.UserResponse
 import dev.postnotifier.infrastructure.api.response.UsersResponse
 import dev.postnotifier.usecase.command.CreateUserCommand
+import dev.postnotifier.usecase.command.DeleteUserCommand
 import dev.postnotifier.usecase.query.GetUserQuery
 import dev.postnotifier.usecase.query.GetUsersQuery
 import io.micronaut.http.HttpStatus
@@ -25,7 +26,8 @@ import java.util.*
 open class AdminUserRestController(
     private val getUserQuery: GetUserQuery,
     private val getUsersQuery: GetUsersQuery,
-    private val createUserCommand: CreateUserCommand
+    private val createUserCommand: CreateUserCommand,
+    private val deleteUserCommand: DeleteUserCommand
 ) {
 
     /**
@@ -74,4 +76,18 @@ open class AdminUserRestController(
         createUserCommand.execute(requestBody)
     }
 
+    /**
+     * ユーザー削除API
+     *
+     * @param userId ユーザーID
+     * @param authentication 認証情報
+     */
+    @Delete("/{user_id}")
+    @Status(HttpStatus.OK)
+    fun deleteUser(
+        @PathVariable("user_id") userId: UUID,
+        @Parameter(hidden = true) authentication: Authentication
+    ) {
+        deleteUserCommand.execute(userId, authentication)
+    }
 }

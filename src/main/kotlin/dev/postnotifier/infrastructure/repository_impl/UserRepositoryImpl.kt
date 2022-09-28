@@ -6,9 +6,11 @@ import dev.postnotifier.infrastructure.db.table.UserTable
 import dev.postnotifier.util.AuthUtil
 import jakarta.inject.Singleton
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.util.*
 
 @Singleton
 class UserRepositoryImpl(
@@ -34,6 +36,24 @@ class UserRepositoryImpl(
         }
     }
 
+    override fun findById(id: UUID): UserModel? {
+        return transaction {
+            val user = UserTable.select {
+                UserTable.id eq id
+            }.map {
+                UserModel(
+                    it[UserTable.id].value,
+                    it[UserTable.email],
+                    it[UserTable.firstName],
+                    it[UserTable.lastName],
+                    it[UserTable.password],
+                    it[UserTable.isAdmin]
+                )
+            }.firstOrNull()
+            return@transaction user
+        }
+    }
+
     override fun create(userModel: UserModel) {
         transaction {
             UserTable.insert {
@@ -42,6 +62,14 @@ class UserRepositoryImpl(
                 it[lastName] = userModel.lastName
                 it[password] = authUtil.encode(userModel.password)
                 it[isAdmin] = userModel.isAdmin
+            }
+        }
+    }
+
+    override fun delete(id: UUID) {
+        transaction {
+            UserTable.deleteWhere {
+                UserTable.id eq id
             }
         }
     }
